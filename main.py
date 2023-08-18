@@ -140,18 +140,6 @@ def main_handler(message):
         if vc:
             bot.send_voice(uid, vc.data, "Проверка отправки голоса")
 
-    if message.content_type == 'voice':
-        ses = Session()
-        print(type(message.voice.file_id))
-        print(message.voice.file_id)
-        print(message.caption)
-        new_voice = Media(name=message.caption, type="voice", data=message.voice.file_id)
-        ses.add(new_voice)
-        ses.commit()
-        ses.close()
-        rep = f"Добавлено '{message.caption}'"
-    else:
-        print(message.content_type)
     do_log(message.from_user, 'Main', to_log)
     bot.send_message(uid, rep, reply_markup=markup, parse_mode='markdown')
     bot.register_next_step_handler(message, next_step)
