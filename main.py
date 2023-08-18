@@ -17,7 +17,6 @@ bot.send_message(289208255, restart_message, parse_mode='markdown')
 
 @bot.message_handler(commands=['myid'])
 def id_handler(message):
-    bot.register_next_step_handler(message, main_handler)
     bot.send_message(message.from_user.id, message.from_user.id, reply_markup=markup_main)
 
 
@@ -28,7 +27,6 @@ def test_handler(message):
 
 @bot.message_handler(commands=['hobby'])
 def hobby_handler(message):
-    bot.register_next_step_handler(message, main_handler)
     ses = Session()
     hobby_text = ses.query(Media).filter(Media.type == 'text').order_by(Media.id.asc()).all()
     hobby_text = hobby_text[0].data + '\n' + hobby_text[1].data
@@ -49,10 +47,11 @@ def voice_prompt(message):
     else:
         if message.text == "Назад":
             rep = "Возврат в главное меню"
-            next_step = main_handler
+            next_step = ''
             markup = markup_main
         bot.send_message(uid, rep, reply_markup=markup)
-    bot.register_next_step_handler(message, next_step)
+    if next_step:
+        bot.register_next_step_handler(message, next_step)
 
 
 def image_prompt(message):
@@ -69,17 +68,19 @@ def image_prompt(message):
     else:
         if message.text == "Назад":
             rep = "Возврат в главное меню"
-            next_step = main_handler
+            next_step = ''
             markup = markup_main
         bot.send_message(uid, rep, reply_markup=markup)
-    bot.register_next_step_handler(message, next_step)
+    if next_step:
+        bot.register_next_step_handler(message, next_step)
 
 
 @bot.message_handler(commands=['start'])
+@bot.message_handler(func=lambda message: True)
 def main_handler(message):
     rep = "Выберите команду"
     markup = markup_main
-    next_step = main_handler
+    next_step = ''
     uid = message.from_user.id
     if message.text == "Фото":
         rep = "Выберите фото"
@@ -91,7 +92,8 @@ def main_handler(message):
         next_step = voice_prompt
 
     bot.send_message(uid, rep, reply_markup=markup, parse_mode='markdown')
-    bot.register_next_step_handler(message, next_step)
+    if next_step:
+        bot.register_next_step_handler(message, next_step)
 
 
 startbot = 1
